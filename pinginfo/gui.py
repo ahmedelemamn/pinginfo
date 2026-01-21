@@ -6,11 +6,12 @@ import asyncio
 import queue
 import threading
 import time
+import platform
 import tkinter as tk
 from dataclasses import dataclass
 from tkinter import ttk
 
-from pinginfo.ping import PingResult, ping_hosts
+from pinginfo.ping import PingResult, ping_command_hint, ping_hosts
 
 
 @dataclass(frozen=True)
@@ -83,14 +84,20 @@ class PingInfoApp:
 
         self.status_label = ttk.Label(frame, text="Idle")
         self.status_label.pack(anchor=tk.W)
+        self.platform_label = ttk.Label(
+            frame, text=f"Platform: {platform.system()} ({ping_command_hint(1.0)})"
+        )
+        self.platform_label.pack(anchor=tk.W)
 
-        self.tree = ttk.Treeview(frame, columns=("status", "latency"))
+        self.tree = ttk.Treeview(frame, columns=("status", "latency", "reverse"))
         self.tree.heading("#0", text="Host")
         self.tree.heading("status", text="Status")
         self.tree.heading("latency", text="Latency")
+        self.tree.heading("reverse", text="Reverse")
         self.tree.column("#0", width=200, anchor=tk.W)
         self.tree.column("status", width=120, anchor=tk.W)
         self.tree.column("latency", width=120, anchor=tk.E)
+        self.tree.column("reverse", width=200, anchor=tk.W)
         self.tree.pack(fill=tk.BOTH, expand=True, pady=8)
 
     def _add_setting(self, parent: ttk.Widget, label: str, variable: tk.StringVar, row: int) -> None:
@@ -131,6 +138,9 @@ class PingInfoApp:
             self.tree.delete(item)
         self.status_label.config(text="Running...")
         settings = self._get_settings()
+        self.platform_label.config(
+            text=f"Platform: {platform.system()} ({ping_command_hint(settings.timeout)})"
+        )
         self._worker = threading.Thread(
             target=self._run_loop,
             args=(hosts, settings),
@@ -177,10 +187,13 @@ class PingInfoApp:
         for result in results:
             status = "OK" if result.success else "FAIL"
             latency = _format_latency(result.latency_ms)
+            reverse = result.reverse_name or "-"
             if result.host in self._rows:
-                self.tree.item(self._rows[result.host], values=(status, latency))
+                self.tree.item(self._rows[result.host], values=(status, latency, reverse))
             else:
-                item = self.tree.insert("", tk.END, values=(status, latency), text=result.host)
+                item = self.tree.insert(
+                    "", tk.END, values=(status, latency, reverse), text=result.host
+                )
                 self._rows[result.host] = item
 
 

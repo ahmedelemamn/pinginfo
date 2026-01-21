@@ -5,7 +5,7 @@ It pings multiple hosts concurrently and prints latency and status in a compact 
 
 ## Features
 
-- Concurrent pings with per-host status
+- Concurrent pings with per-host status and reverse DNS lookup
 - Cross-platform (Windows, macOS, Linux)
 - Configurable interval, timeout, and count
 
