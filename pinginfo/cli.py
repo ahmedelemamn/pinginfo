@@ -20,14 +20,11 @@ def _print_table(results, iteration: int) -> None:
     header = f"PingInfo - iteration {iteration}"
     print("\n" + header)
     print("=" * len(header))
-    print(f"{'Host':<30} {'Status':<12} {'Latency':>10} {'Reverse':<30}")
-    print("-" * 86)
+    print(f"{'Host':<30} {'Status':<12} {'Latency':>10}")
+    print("-" * 54)
     for result in results:
         status = "OK" if result.success else "FAIL"
-        reverse = result.reverse_name or "-"
-        print(
-            f"{result.host:<30} {status:<12} {_format_latency(result.latency_ms):>10} {reverse:<30}"
-        )
+        print(f"{result.host:<30} {status:<12} {_format_latency(result.latency_ms):>10}")
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
