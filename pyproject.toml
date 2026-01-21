@@ -1,0 +1,11 @@
+[project]
+name = "pinginfo"
+version = "0.1.0"
+description = "Cross-platform CLI alternative to PingInfoView"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+
+[project.scripts]
+pinginfo = "pinginfo.cli:main"
+pinginfo-gui = "pinginfo.gui:main"
